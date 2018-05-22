@@ -33,7 +33,8 @@ namespace UnityEditor.ShaderGraph
             [Optional]                          Vector2 texCoord3;
             [Optional]                          Vector4 color;
             [Optional] [Semantic("FRONT_FACE_SEMANTIC")] [OverrideType("FRONT_FACE_TYPE")] [PreprocessorIf("SHADER_STAGE_FRAGMENT")]
-                                                bool cullFace;
+                                                bool cullFace;
+
             public static Dependency[] tessellationDependencies = new Dependency[]
             {
                 new Dependency("VaryingsMeshToPS.positionWS",       "VaryingsMeshToDS.positionWS"),
@@ -97,7 +98,7 @@ namespace UnityEditor.ShaderGraph
             };
         };
 
-        struct GraphInputs
+        struct SurfaceDescriptionInputs
         {
             [Optional] Vector3 ObjectSpaceNormal;
             [Optional] Vector3 ViewSpaceNormal;
@@ -133,36 +134,36 @@ namespace UnityEditor.ShaderGraph
 
             public static Dependency[] dependencies = new Dependency[]
             {
-                new Dependency("GraphInputs.WorldSpaceNormal",          "FragInputs.worldToTangent"),
-                new Dependency("GraphInputs.ObjectSpaceNormal",         "GraphInputs.WorldSpaceNormal"),
-                new Dependency("GraphInputs.ViewSpaceNormal",           "GraphInputs.WorldSpaceNormal"),
+                new Dependency("SurfaceDescriptionInputs.WorldSpaceNormal",          "FragInputs.worldToTangent"),
+                new Dependency("SurfaceDescriptionInputs.ObjectSpaceNormal",         "SurfaceDescriptionInputs.WorldSpaceNormal"),
+                new Dependency("SurfaceDescriptionInputs.ViewSpaceNormal",           "SurfaceDescriptionInputs.WorldSpaceNormal"),
 
-                new Dependency("GraphInputs.WorldSpaceTangent",         "FragInputs.worldToTangent"),
-                new Dependency("GraphInputs.ObjectSpaceTangent",        "GraphInputs.WorldSpaceTangent"),
-                new Dependency("GraphInputs.ViewSpaceTangent",          "GraphInputs.WorldSpaceTangent"),
+                new Dependency("SurfaceDescriptionInputs.WorldSpaceTangent",         "FragInputs.worldToTangent"),
+                new Dependency("SurfaceDescriptionInputs.ObjectSpaceTangent",        "SurfaceDescriptionInputs.WorldSpaceTangent"),
+                new Dependency("SurfaceDescriptionInputs.ViewSpaceTangent",          "SurfaceDescriptionInputs.WorldSpaceTangent"),
 
-                new Dependency("GraphInputs.WorldSpaceBiTangent",       "FragInputs.worldToTangent"),
-                new Dependency("GraphInputs.ObjectSpaceBiTangent",      "GraphInputs.WorldSpaceBiTangent"),
-                new Dependency("GraphInputs.ViewSpaceBiTangent",        "GraphInputs.WorldSpaceBiTangent"),
+                new Dependency("SurfaceDescriptionInputs.WorldSpaceBiTangent",       "FragInputs.worldToTangent"),
+                new Dependency("SurfaceDescriptionInputs.ObjectSpaceBiTangent",      "SurfaceDescriptionInputs.WorldSpaceBiTangent"),
+                new Dependency("SurfaceDescriptionInputs.ViewSpaceBiTangent",        "SurfaceDescriptionInputs.WorldSpaceBiTangent"),
 
-                new Dependency("GraphInputs.WorldSpacePosition",        "FragInputs.positionWS"),
-                new Dependency("GraphInputs.ObjectSpacePosition",       "FragInputs.positionWS"),
-                new Dependency("GraphInputs.ViewSpacePosition",         "FragInputs.positionWS"),
+                new Dependency("SurfaceDescriptionInputs.WorldSpacePosition",        "FragInputs.positionWS"),
+                new Dependency("SurfaceDescriptionInputs.ObjectSpacePosition",       "FragInputs.positionWS"),
+                new Dependency("SurfaceDescriptionInputs.ViewSpacePosition",         "FragInputs.positionWS"),
 
-                new Dependency("GraphInputs.WorldSpaceViewDirection",   "FragInputs.positionWS"),                   // we build WorldSpaceViewDirection using FragInputs.positionWS in GetWorldSpaceNormalizeViewDir()
-                new Dependency("GraphInputs.ObjectSpaceViewDirection",  "GraphInputs.WorldSpaceViewDirection"),
-                new Dependency("GraphInputs.ViewSpaceViewDirection",    "GraphInputs.WorldSpaceViewDirection"),
-                new Dependency("GraphInputs.TangentSpaceViewDirection", "GraphInputs.WorldSpaceViewDirection"),
-                new Dependency("GraphInputs.TangentSpaceViewDirection", "GraphInputs.WorldSpaceTangent"),
-                new Dependency("GraphInputs.TangentSpaceViewDirection", "GraphInputs.WorldSpaceBiTangent"),
-                new Dependency("GraphInputs.TangentSpaceViewDirection", "GraphInputs.WorldSpaceNormal"),
+                new Dependency("SurfaceDescriptionInputs.WorldSpaceViewDirection",   "FragInputs.positionWS"),                   // we build WorldSpaceViewDirection using FragInputs.positionWS in GetWorldSpaceNormalizeViewDir()
+                new Dependency("SurfaceDescriptionInputs.ObjectSpaceViewDirection",  "SurfaceDescriptionInputs.WorldSpaceViewDirection"),
+                new Dependency("SurfaceDescriptionInputs.ViewSpaceViewDirection",    "SurfaceDescriptionInputs.WorldSpaceViewDirection"),
+                new Dependency("SurfaceDescriptionInputs.TangentSpaceViewDirection", "SurfaceDescriptionInputs.WorldSpaceViewDirection"),
+                new Dependency("SurfaceDescriptionInputs.TangentSpaceViewDirection", "SurfaceDescriptionInputs.WorldSpaceTangent"),
+                new Dependency("SurfaceDescriptionInputs.TangentSpaceViewDirection", "SurfaceDescriptionInputs.WorldSpaceBiTangent"),
+                new Dependency("SurfaceDescriptionInputs.TangentSpaceViewDirection", "SurfaceDescriptionInputs.WorldSpaceNormal"),
 
-                new Dependency("GraphInputs.screenPosition",            "FragInputs.positionSS"),
-                new Dependency("GraphInputs.uv0",                       "FragInputs.texCoord0"),
-                new Dependency("GraphInputs.uv1",                       "FragInputs.texCoord1"),
-                new Dependency("GraphInputs.uv2",                       "FragInputs.texCoord2"),
-                new Dependency("GraphInputs.uv3",                       "FragInputs.texCoord3"),
-                new Dependency("GraphInputs.vertexColor",               "FragInputs.color"),
+                new Dependency("SurfaceDescriptionInputs.screenPosition",            "FragInputs.positionSS"),
+                new Dependency("SurfaceDescriptionInputs.uv0",                       "FragInputs.texCoord0"),
+                new Dependency("SurfaceDescriptionInputs.uv1",                       "FragInputs.texCoord1"),
+                new Dependency("SurfaceDescriptionInputs.uv2",                       "FragInputs.texCoord2"),
+                new Dependency("SurfaceDescriptionInputs.uv3",                       "FragInputs.texCoord3"),
+                new Dependency("SurfaceDescriptionInputs.vertexColor",               "FragInputs.color"),
             };
         };
 
@@ -170,92 +171,92 @@ namespace UnityEditor.ShaderGraph
         {
             if (requirements.requiresScreenPosition)
             {
-                activeFields.Add("GraphInputs.screenPosition");
+                activeFields.Add("SurfaceDescriptionInputs.screenPosition");
             }
 
             if (requirements.requiresVertexColor)
             {
-                activeFields.Add("GraphInputs.vertexColor");
+                activeFields.Add("SurfaceDescriptionInputs.vertexColor");
             }
 
             if (requirements.requiresNormal != 0)
             {
                 if ((requirements.requiresNormal & NeededCoordinateSpace.Object) > 0)
-                    activeFields.Add("GraphInputs.ObjectSpaceNormal");
+                    activeFields.Add("SurfaceDescriptionInputs.ObjectSpaceNormal");
 
                 if ((requirements.requiresNormal & NeededCoordinateSpace.View) > 0)
-                    activeFields.Add("GraphInputs.ViewSpaceNormal");
+                    activeFields.Add("SurfaceDescriptionInputs.ViewSpaceNormal");
 
                 if ((requirements.requiresNormal & NeededCoordinateSpace.World) > 0)
-                    activeFields.Add("GraphInputs.WorldSpaceNormal");
+                    activeFields.Add("SurfaceDescriptionInputs.WorldSpaceNormal");
 
                 if ((requirements.requiresNormal & NeededCoordinateSpace.Tangent) > 0)
-                    activeFields.Add("GraphInputs.TangentSpaceNormal");
+                    activeFields.Add("SurfaceDescriptionInputs.TangentSpaceNormal");
             }
 
             if (requirements.requiresTangent != 0)
             {
                 if ((requirements.requiresTangent & NeededCoordinateSpace.Object) > 0)
-                    activeFields.Add("GraphInputs.ObjectSpaceTangent");
+                    activeFields.Add("SurfaceDescriptionInputs.ObjectSpaceTangent");
 
                 if ((requirements.requiresTangent & NeededCoordinateSpace.View) > 0)
-                    activeFields.Add("GraphInputs.ViewSpaceTangent");
+                    activeFields.Add("SurfaceDescriptionInputs.ViewSpaceTangent");
 
                 if ((requirements.requiresTangent & NeededCoordinateSpace.World) > 0)
-                    activeFields.Add("GraphInputs.WorldSpaceTangent");
+                    activeFields.Add("SurfaceDescriptionInputs.WorldSpaceTangent");
 
                 if ((requirements.requiresTangent & NeededCoordinateSpace.Tangent) > 0)
-                    activeFields.Add("GraphInputs.TangentSpaceTangent");
+                    activeFields.Add("SurfaceDescriptionInputs.TangentSpaceTangent");
             }
 
             if (requirements.requiresBitangent != 0)
             {
                 if ((requirements.requiresBitangent & NeededCoordinateSpace.Object) > 0)
-                    activeFields.Add("GraphInputs.ObjectSpaceBiTangent");
+                    activeFields.Add("SurfaceDescriptionInputs.ObjectSpaceBiTangent");
 
                 if ((requirements.requiresBitangent & NeededCoordinateSpace.View) > 0)
-                    activeFields.Add("GraphInputs.ViewSpaceBiTangent");
+                    activeFields.Add("SurfaceDescriptionInputs.ViewSpaceBiTangent");
 
                 if ((requirements.requiresBitangent & NeededCoordinateSpace.World) > 0)
-                    activeFields.Add("GraphInputs.WorldSpaceBiTangent");
+                    activeFields.Add("SurfaceDescriptionInputs.WorldSpaceBiTangent");
 
                 if ((requirements.requiresBitangent & NeededCoordinateSpace.Tangent) > 0)
-                    activeFields.Add("GraphInputs.TangentSpaceBiTangent");
+                    activeFields.Add("SurfaceDescriptionInputs.TangentSpaceBiTangent");
             }
 
             if (requirements.requiresViewDir != 0)
             {
                 if ((requirements.requiresViewDir & NeededCoordinateSpace.Object) > 0)
-                    activeFields.Add("GraphInputs.ObjectSpaceViewDirection");
+                    activeFields.Add("SurfaceDescriptionInputs.ObjectSpaceViewDirection");
 
                 if ((requirements.requiresViewDir & NeededCoordinateSpace.View) > 0)
-                    activeFields.Add("GraphInputs.ViewSpaceViewDirection");
+                    activeFields.Add("SurfaceDescriptionInputs.ViewSpaceViewDirection");
 
                 if ((requirements.requiresViewDir & NeededCoordinateSpace.World) > 0)
-                    activeFields.Add("GraphInputs.WorldSpaceViewDirection");
+                    activeFields.Add("SurfaceDescriptionInputs.WorldSpaceViewDirection");
 
                 if ((requirements.requiresViewDir & NeededCoordinateSpace.Tangent) > 0)
-                    activeFields.Add("GraphInputs.TangentSpaceViewDirection");
+                    activeFields.Add("SurfaceDescriptionInputs.TangentSpaceViewDirection");
             }
 
             if (requirements.requiresPosition != 0)
             {
                 if ((requirements.requiresPosition & NeededCoordinateSpace.Object) > 0)
-                    activeFields.Add("GraphInputs.ObjectSpacePosition");
+                    activeFields.Add("SurfaceDescriptionInputs.ObjectSpacePosition");
 
                 if ((requirements.requiresPosition & NeededCoordinateSpace.View) > 0)
-                    activeFields.Add("GraphInputs.ViewSpacePosition");
+                    activeFields.Add("SurfaceDescriptionInputs.ViewSpacePosition");
 
                 if ((requirements.requiresPosition & NeededCoordinateSpace.World) > 0)
-                    activeFields.Add("GraphInputs.WorldSpacePosition");
+                    activeFields.Add("SurfaceDescriptionInputs.WorldSpacePosition");
 
                 if ((requirements.requiresPosition & NeededCoordinateSpace.Tangent) > 0)
-                    activeFields.Add("GraphInputs.TangentSpacePosition");
+                    activeFields.Add("SurfaceDescriptionInputs.TangentSpacePosition");
             }
 
             foreach (var channel in requirements.requiresMeshUVs.Distinct())
             {
-                activeFields.Add("GraphInputs." + channel.GetUVName());
+                activeFields.Add("SurfaceDescriptionInputs." + channel.GetUVName());
             }
         }
 
@@ -289,7 +290,7 @@ namespace UnityEditor.ShaderGraph
                     {
                         FragInputs.dependencies,
                         VaryingsMeshToPS.standardDependencies,
-                        GraphInputs.dependencies,
+                        SurfaceDescriptionInputs.dependencies,
                     });
             }
 
@@ -299,7 +300,7 @@ namespace UnityEditor.ShaderGraph
             ShaderSpliceUtil.BuildType(typeof(VaryingsMeshToDS), activeFields, codeResult);
             ShaderSpliceUtil.BuildPackedType(typeof(VaryingsMeshToPS), activeFields, codeResult);
             ShaderSpliceUtil.BuildPackedType(typeof(VaryingsMeshToDS), activeFields, codeResult);
-            ShaderSpliceUtil.BuildType(typeof(GraphInputs), activeFields, graphInputsResult);
+            ShaderSpliceUtil.BuildType(typeof(SurfaceDescriptionInputs), activeFields, graphInputsResult);
         }
     };
 
@@ -329,16 +330,16 @@ namespace UnityEditor.ShaderGraph
         public static void BuildRenderStatesFromPassAndMaterialOptions(
             Pass pass,
             SurfaceMaterialOptions materialOptions,
-            ShaderGenerator blendCode,
-            ShaderGenerator cullCode,
-            ShaderGenerator zTestCode,
-            ShaderGenerator zWriteCode,
-            ShaderGenerator stencilCode,
-            ShaderGenerator colorMaskCode)
+            ShaderStringBuilder blendCode,
+            ShaderStringBuilder cullCode,
+            ShaderStringBuilder zTestCode,
+            ShaderStringBuilder zWriteCode,
+            ShaderStringBuilder stencilCode,
+            ShaderStringBuilder colorMaskCode)
         {
             if (pass.BlendOverride != null)
             {
-                blendCode.AddShaderChunk(pass.BlendOverride);
+                blendCode.AppendLine(pass.BlendOverride);
             }
             else
             {
@@ -347,12 +348,12 @@ namespace UnityEditor.ShaderGraph
 
             if (pass.BlendOpOverride != null)
             {
-                blendCode.AddShaderChunk(pass.BlendOpOverride);
+                blendCode.AppendLine(pass.BlendOpOverride);
             }
 
             if (pass.CullOverride != null)
             {
-                cullCode.AddShaderChunk(pass.CullOverride);
+                cullCode.AppendLine(pass.CullOverride);
             }
             else
             {
@@ -361,7 +362,7 @@ namespace UnityEditor.ShaderGraph
 
             if (pass.ZTestOverride != null)
             {
-                zTestCode.AddShaderChunk(pass.ZTestOverride);
+                zTestCode.AppendLine(pass.ZTestOverride);
             }
             else
             {
@@ -370,7 +371,7 @@ namespace UnityEditor.ShaderGraph
 
             if (pass.ZWriteOverride != null)
             {
-                zWriteCode.AddShaderChunk(pass.ZWriteOverride);
+                zWriteCode.AppendLine(pass.ZWriteOverride);
             }
             else
             {
@@ -379,7 +380,7 @@ namespace UnityEditor.ShaderGraph
 
             if (pass.ColorMaskOverride != null)
             {
-                colorMaskCode.AddShaderChunk(pass.ColorMaskOverride);
+                colorMaskCode.AppendLine(pass.ColorMaskOverride);
             }
             else
             {
@@ -390,12 +391,12 @@ namespace UnityEditor.ShaderGraph
             {
                 foreach (var str in pass.StencilOverride)
                 {
-                    stencilCode.AddShaderChunk(str);
+                    stencilCode.AppendLine(str);
                 }
             }
             else
             {
-                stencilCode.AddShaderChunk("// Default Stencil");
+                stencilCode.AppendLine("// Default Stencil");
             }
         }
 

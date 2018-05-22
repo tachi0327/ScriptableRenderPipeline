@@ -28,4 +28,4 @@ Temp/*
 .npmrc
 ShaderGraph/DebugOutput.meta
 ShaderGraph/DebugOutput/**
-Testing/IntegrationTests/.Failed
+ShaderGraph/Testing/IntegrationTests/.Failed

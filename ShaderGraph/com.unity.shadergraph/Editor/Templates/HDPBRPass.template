@@ -166,49 +166,49 @@ ${Graph}
             return output;
         }
 
-        GraphInputs FragInputsToGraphInputs(FragInputs input, float3 viewWS)
+        SurfaceDescriptionInputs FragInputsToSurfaceDescriptionInputs(FragInputs input, float3 viewWS)
         {
-            GraphInputs output;
-            ZERO_INITIALIZE(GraphInputs, output);
+            SurfaceDescriptionInputs output;
+            ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
 
-            $GraphInputs.WorldSpaceNormal:          output.WorldSpaceNormal =            normalize(input.worldToTangent[2].xyz);
-            $GraphInputs.ObjectSpaceNormal:         output.ObjectSpaceNormal =           mul(output.WorldSpaceNormal, (float3x3) unity_ObjectToWorld);      // transposed multiplication by inverse matrix to handle normal scale
-            $GraphInputs.ViewSpaceNormal:           output.ViewSpaceNormal =             mul(output.WorldSpaceNormal, (float3x3) UNITY_MATRIX_I_V);         // transposed multiplication by inverse matrix to handle normal scale
-            $GraphInputs.TangentSpaceNormal:        output.TangentSpaceNormal =          float3(0.0f, 0.0f, 1.0f);
+            $SurfaceDescriptionInputs.WorldSpaceNormal:          output.WorldSpaceNormal =            normalize(input.worldToTangent[2].xyz);
+            $SurfaceDescriptionInputs.ObjectSpaceNormal:         output.ObjectSpaceNormal =           mul(output.WorldSpaceNormal, (float3x3) unity_ObjectToWorld);      // transposed multiplication by inverse matrix to handle normal scale
+            $SurfaceDescriptionInputs.ViewSpaceNormal:           output.ViewSpaceNormal =             mul(output.WorldSpaceNormal, (float3x3) UNITY_MATRIX_I_V);         // transposed multiplication by inverse matrix to handle normal scale
+            $SurfaceDescriptionInputs.TangentSpaceNormal:        output.TangentSpaceNormal =          float3(0.0f, 0.0f, 1.0f);
 
-            $GraphInputs.WorldSpaceTangent:		    output.WorldSpaceTangent =           input.worldToTangent[0].xyz;
-            $GraphInputs.ObjectSpaceTangent:        output.ObjectSpaceTangent =          mul((float3x3) unity_WorldToObject, output.WorldSpaceTangent);
-            $GraphInputs.ViewSpaceTangent:          output.ViewSpaceTangent =            mul((float3x3) UNITY_MATRIX_V, output.WorldSpaceTangent);
-            $GraphInputs.TangentSpaceTangent:       output.TangentSpaceTangent =         float3(1.0f, 0.0f, 0.0f);
+            $SurfaceDescriptionInputs.WorldSpaceTangent:		 output.WorldSpaceTangent =           input.worldToTangent[0].xyz;
+            $SurfaceDescriptionInputs.ObjectSpaceTangent:        output.ObjectSpaceTangent =          mul((float3x3) unity_WorldToObject, output.WorldSpaceTangent);
+            $SurfaceDescriptionInputs.ViewSpaceTangent:          output.ViewSpaceTangent =            mul((float3x3) UNITY_MATRIX_V, output.WorldSpaceTangent);
+            $SurfaceDescriptionInputs.TangentSpaceTangent:       output.TangentSpaceTangent =         float3(1.0f, 0.0f, 0.0f);
 
-            $GraphInputs.WorldSpaceBiTangent:       output.WorldSpaceBiTangent =         input.worldToTangent[1].xyz;
-            $GraphInputs.ObjectSpaceBiTangent:      output.ObjectSpaceBiTangent =        mul((float3x3) unity_WorldToObject, output.WorldSpaceBiTangent);
-            $GraphInputs.ViewSpaceBiTangent:        output.ViewSpaceBiTangent =          mul((float3x3) UNITY_MATRIX_V, output.WorldSpaceBiTangent);
-            $GraphInputs.TangentSpaceBiTangent:     output.TangentSpaceBiTangent =       float3(0.0f, 1.0f, 0.0f);
+            $SurfaceDescriptionInputs.WorldSpaceBiTangent:       output.WorldSpaceBiTangent =         input.worldToTangent[1].xyz;
+            $SurfaceDescriptionInputs.ObjectSpaceBiTangent:      output.ObjectSpaceBiTangent =        mul((float3x3) unity_WorldToObject, output.WorldSpaceBiTangent);
+            $SurfaceDescriptionInputs.ViewSpaceBiTangent:        output.ViewSpaceBiTangent =          mul((float3x3) UNITY_MATRIX_V, output.WorldSpaceBiTangent);
+            $SurfaceDescriptionInputs.TangentSpaceBiTangent:     output.TangentSpaceBiTangent =       float3(0.0f, 1.0f, 0.0f);
 
-            $GraphInputs.WorldSpaceViewDirection:   output.WorldSpaceViewDirection =     normalize(viewWS);
-            $GraphInputs.ObjectSpaceViewDirection:  output.ObjectSpaceViewDirection =    mul((float3x3) unity_WorldToObject, output.WorldSpaceViewDirection);
-            $GraphInputs.ViewSpaceViewDirection:    output.ViewSpaceViewDirection =      mul((float3x3) UNITY_MATRIX_V, output.WorldSpaceViewDirection);
-            $GraphInputs.TangentSpaceViewDirection: float3x3 tangentSpaceTransform =     float3x3(output.WorldSpaceTangent,output.WorldSpaceBiTangent,output.WorldSpaceNormal);
-            $GraphInputs.TangentSpaceViewDirection: output.TangentSpaceViewDirection =   mul(tangentSpaceTransform, output.WorldSpaceViewDirection);
+            $SurfaceDescriptionInputs.WorldSpaceViewDirection:   output.WorldSpaceViewDirection =     normalize(viewWS);
+            $SurfaceDescriptionInputs.ObjectSpaceViewDirection:  output.ObjectSpaceViewDirection =    mul((float3x3) unity_WorldToObject, output.WorldSpaceViewDirection);
+            $SurfaceDescriptionInputs.ViewSpaceViewDirection:    output.ViewSpaceViewDirection =      mul((float3x3) UNITY_MATRIX_V, output.WorldSpaceViewDirection);
+            $SurfaceDescriptionInputs.TangentSpaceViewDirection: float3x3 tangentSpaceTransform =     float3x3(output.WorldSpaceTangent,output.WorldSpaceBiTangent,output.WorldSpaceNormal);
+            $SurfaceDescriptionInputs.TangentSpaceViewDirection: output.TangentSpaceViewDirection =   mul(tangentSpaceTransform, output.WorldSpaceViewDirection);
 
             // TODO: FragInputs.positionWS is badly named -- it's camera relative, not in world space
             // we have to fix it up here to match graph input expectations
-            $GraphInputs.WorldSpacePosition:        output.WorldSpacePosition =          input.positionWS + _WorldSpaceCameraPos;
-            $GraphInputs.ObjectSpacePosition:       output.ObjectSpacePosition =         mul(unity_WorldToObject, float4(input.positionWS + _WorldSpaceCameraPos, 1.0f)).xyz;
-            $GraphInputs.ViewSpacePosition:         float4 posViewSpace =                mul(UNITY_MATRIX_V, float4(input.positionWS, 1.0f));
-            $GraphInputs.ViewSpacePosition:         output.ViewSpacePosition =           posViewSpace.xyz / posViewSpace.w;
-            $GraphInputs.TangentSpacePosition:      output.TangentSpacePosition =        float3(0.0f, 0.0f, 0.0f);
+            $SurfaceDescriptionInputs.WorldSpacePosition:        output.WorldSpacePosition =          input.positionWS + _WorldSpaceCameraPos;
+            $SurfaceDescriptionInputs.ObjectSpacePosition:       output.ObjectSpacePosition =         mul(unity_WorldToObject, float4(input.positionWS + _WorldSpaceCameraPos, 1.0f)).xyz;
+            $SurfaceDescriptionInputs.ViewSpacePosition:         float4 posViewSpace =                mul(UNITY_MATRIX_V, float4(input.positionWS, 1.0f));
+            $SurfaceDescriptionInputs.ViewSpacePosition:         output.ViewSpacePosition =           posViewSpace.xyz / posViewSpace.w;
+            $SurfaceDescriptionInputs.TangentSpacePosition:      output.TangentSpacePosition =        float3(0.0f, 0.0f, 0.0f);
 
             // TODO: positionSS is SV_Position, graph input expects screenPosition to be 0..1 across the active viewport (?)
-            $GraphInputs.screenPosition:            output.screenPosition = input.positionSS;
+            $SurfaceDescriptionInputs.screenPosition:            output.screenPosition = input.positionSS;
             
-            $GraphInputs.uv0:                       output.uv0 =    float4(input.texCoord0, 0.0f, 0.0f);
-            $GraphInputs.uv1:                       output.uv1 =    float4(input.texCoord1, 0.0f, 0.0f);
-            $GraphInputs.uv2:                       output.uv2 =    float4(input.texCoord2, 0.0f, 0.0f);
-            $GraphInputs.uv3:                       output.uv3 =    float4(input.texCoord3, 0.0f, 0.0f);
+            $SurfaceDescriptionInputs.uv0:                       output.uv0 =    float4(input.texCoord0, 0.0f, 0.0f);
+            $SurfaceDescriptionInputs.uv1:                       output.uv1 =    float4(input.texCoord1, 0.0f, 0.0f);
+            $SurfaceDescriptionInputs.uv2:                       output.uv2 =    float4(input.texCoord2, 0.0f, 0.0f);
+            $SurfaceDescriptionInputs.uv3:                       output.uv3 =    float4(input.texCoord3, 0.0f, 0.0f);
             
-            $GraphInputs.vertexColor:               output.vertexColor =    input.color;
+            $SurfaceDescriptionInputs.vertexColor:               output.vertexColor =    input.color;
 
             return output;
         }
@@ -220,7 +220,7 @@ ${Graph}
         return BuildFragInputs(unpacked);
     }
 
-    void BuildSurfaceData(FragInputs fragInputs, GraphOutputs graphOutputs, float3 V, out SurfaceData surfaceData)
+    void BuildSurfaceData(FragInputs fragInputs, SurfaceDescription surfaceDescription, float3 V, out SurfaceData surfaceData)
     {
         // setup defaults -- these are used if the graph doesn't output a value
         ZERO_INITIALIZE(SurfaceData, surfaceData);
@@ -228,14 +228,14 @@ ${Graph}
         surfaceData.subsurfaceMask =        1.0f;
 
         // copy across graph values, if defined
-        $GraphOutputs.Albedo:               surfaceData.baseColor =             graphOutputs.Albedo;
-        $GraphOutputs.Smoothness:           surfaceData.perceptualSmoothness =  graphOutputs.Smoothness;
-        $GraphOutputs.Occlusion:            surfaceData.ambientOcclusion =      graphOutputs.Occlusion;
-        $GraphOutputs.Metallic:             surfaceData.metallic =              graphOutputs.Metallic;
-        //                                  surfaceData.thickness =             graphOutputs.Thickness;
-        //                                  surfaceData.diffusionProfile =      graphOutputs.DiffusionProfile;
-        //                                  surfaceData.subsurfaceMask =        graphOutputs.SubsurfaceMask;
-        $GraphOutputs.Specular:             surfaceData.specularColor =         graphOutputs.Specular;
+        $SurfaceDescription.Albedo:               surfaceData.baseColor =             surfaceDescription.Albedo;
+        $SurfaceDescription.Smoothness:           surfaceData.perceptualSmoothness =  surfaceDescription.Smoothness;
+        $SurfaceDescription.Occlusion:            surfaceData.ambientOcclusion =      surfaceDescription.Occlusion;
+        $SurfaceDescription.Metallic:             surfaceData.metallic =              surfaceDescription.Metallic;
+        //                                  surfaceData.thickness =             surfaceDescription.Thickness;
+        //                                  surfaceData.diffusionProfile =      surfaceDescription.DiffusionProfile;
+        //                                  surfaceData.subsurfaceMask =        surfaceDescription.SubsurfaceMask;
+        $SurfaceDescription.Specular:             surfaceData.specularColor =         surfaceDescription.Specular;
 
         // These static material feature allow compile time optimization
         surfaceData.materialFeatures = MATERIALFEATUREFLAGS_LIT_STANDARD;
@@ -260,12 +260,12 @@ ${Graph}
 
         // tangent-space normal
         float3 normalTS =                   float3(0.0f, 0.0f, 1.0f);
-        $GraphOutputs.Normal:       normalTS =                   graphOutputs.Normal;
+        $SurfaceDescription.Normal:       normalTS =                   surfaceDescription.Normal;
 
         // compute world space normal
         GetNormalWS(fragInputs, V, normalTS, surfaceData.normalWS);
 
-        // TODO: use graphOutput tangent definition for anisotropy
+        // TODO: use surfaceDescription tangent definition for anisotropy
         surfaceData.tangentWS = normalize(fragInputs.worldToTangent[0].xyz);    // The tangent is not normalize in worldToTangent for mikkt. TODO: Check if it expected that we normalize with Morten. Tag: SURFACE_GRADIENT
         surfaceData.tangentWS = Orthonormalize(surfaceData.tangentWS, surfaceData.normalWS);
 
@@ -302,16 +302,16 @@ ${Graph}
         $DoubleSided.Mirror:        fragInputs.worldToTangent[2] = -fragInputs.worldToTangent[2];     // normal
         $DoubleSided:           }
 
-        GraphInputs graphInputs = FragInputsToGraphInputs(fragInputs, V);
-        GraphOutputs graphOutputs = EvaluateGraph(graphInputs);
+        SurfaceDescriptionInputs surfaceDescriptionInputs = FragInputsToSurfaceDescriptionInputs(fragInputs, V);
+        SurfaceDescription surfaceDescription = SurfaceDescriptionFunction(surfaceDescriptionInputs);
 
         // Perform alpha test very early to save performance (a killed pixel will not sample textures)
         // TODO: split graph evaluation to grab just alpha dependencies first? tricky..
 #ifdef _ALPHATEST_ON
-        DoAlphaTest(graphOutputs.Alpha, graphOutputs.AlphaClipThreshold);
+        DoAlphaTest(surfaceDescription.Alpha, surfaceDescription.AlphaClipThreshold);
 #endif
 
-        BuildSurfaceData(fragInputs, graphOutputs, V, surfaceData);
+        BuildSurfaceData(fragInputs, surfaceDescription, V, surfaceData);
 
         // Builtin Data -- we don't call GetBuiltinData(fragInputs, surfaceData, ...)
         // that function assumes there are specific global properties defined
@@ -319,7 +319,7 @@ ${Graph}
         ZERO_INITIALIZE(BuiltinData, builtinData);
         float3 bentNormalWS =                   surfaceData.normalWS;           // TODO : make bent normals work
 
-        builtinData.opacity =                   graphOutputs.Alpha;
+        builtinData.opacity =                   surfaceDescription.Alpha;
         builtinData.bakeDiffuseLighting =       SampleBakedGI(fragInputs.positionWS, bentNormalWS, fragInputs.texCoord1, fragInputs.texCoord2);    // see GetBuiltinData()
      
         // It is safe to call this function here as surfaceData have been filled
@@ -335,7 +335,7 @@ ${Graph}
         }
 
         builtinData.emissiveIntensity =         1.0f;
-$GraphOutputs.Emission:     builtinData.emissiveColor =             graphOutputs.Emission;
+$SurfaceDescription.Emission:     builtinData.emissiveColor =             surfaceDescription.Emission;
         builtinData.velocity =                  float2(0.0, 0.0);
 #ifdef SHADOWS_SHADOWMASK
         float4 shadowMask = SampleShadowMask(fragInputs.positionWS, fragInputs.texCoord1);
@@ -349,8 +349,8 @@ $GraphOutputs.Emission:     builtinData.emissiveColor =             graphOutputs
         builtinData.shadowMask2 = 0.0;
         builtinData.shadowMask3 = 0.0;
 #endif
-        builtinData.distortion =                float2(0.0, 0.0);           // graphOutputs.Distortion -- if distortion pass
-        builtinData.distortionBlur =            0.0;                        // graphOutputs.DistortionBlur -- if distortion pass
+        builtinData.distortion =                float2(0.0, 0.0);           // surfaceDescription.Distortion -- if distortion pass
+        builtinData.distortionBlur =            0.0;                        // surfaceDescription.DistortionBlur -- if distortion pass
         builtinData.depthOffset =               0.0;                        // ApplyPerPixelDisplacement(input, V, layerTexCoord, blendMasks); #ifdef _DEPTHOFFSET_ON : ApplyDepthOffsetPositionInput(V, depthOffset, GetWorldToHClipMatrix(), posInput);
     }
 

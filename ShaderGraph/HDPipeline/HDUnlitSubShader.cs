@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using UnityEditor.Graphing;
 
-
 namespace UnityEditor.ShaderGraph
 {
 //    [Serializable] ??
@@ -224,7 +223,7 @@ namespace UnityEditor.ShaderGraph
             NodeUtils.DepthFirstCollectNodesFromNode(activeNodeList, masterNode, NodeUtils.IncludeSelf.Include, pass.PixelShaderSlots);
 
             // graph requirements describe what the graph itself requires
-            var graphRequirements = ShaderGraphRequirements.FromNodes(activeNodeList, true);
+            var graphRequirements = ShaderGraphRequirements.FromNodes(activeNodeList, ShaderStageCapability.All, true, true);
 
             ShaderStringBuilder graphNodeFunctions = new ShaderStringBuilder();
             graphNodeFunctions.IncreaseIndent();
@@ -243,19 +242,19 @@ namespace UnityEditor.ShaderGraph
             }
 
             // build the graph outputs structure to hold the results of each active slots (and fill out activeFields to indicate they are active)
-            string graphInputStructName = "GraphInputs";
-            string graphOutputStructName = "GraphOutputs";
-            string graphEvalFunctionName = "EvaluateGraph";
-            ShaderGenerator graphEvalFunction = new ShaderGenerator();
-            ShaderGenerator graphOutputs = new ShaderGenerator();
+            string graphInputStructName = "SurfaceDescriptionInputs";
+            string graphOutputStructName = "SurfaceDescription";
+            string graphEvalFunctionName = "SurfaceDescriptionFunction";
+            var graphEvalFunction = new ShaderStringBuilder();
+            var graphOutputs = new ShaderStringBuilder();
             PropertyCollector graphProperties = new PropertyCollector();
 
             // build the graph outputs structure, and populate activeFields with the fields of that structure
             HashSet<string> activeFields = new HashSet<string>();
-            GraphUtil.GenerateSurfaceDescriptionStruct(graphOutputs, activeSlots, true, graphOutputStructName, activeFields);
+            GraphUtil.GenerateSurfaceDescriptionStruct(graphOutputs, activeSlots, true);
 
             // Build the graph evaluation code, to evaluate the specified slots
-            GraphUtil.GenerateSurfaceDescription(
+            GraphUtil.GenerateSurfaceDescriptionFunction(
                 activeNodeList,
                 masterNode,
                 masterNode.owner as AbstractMaterialGraph,
@@ -270,12 +269,12 @@ namespace UnityEditor.ShaderGraph
                 activeSlots,
                 graphInputStructName);
 
-            var blendCode = new ShaderGenerator();
-            var cullCode = new ShaderGenerator();
-            var zTestCode = new ShaderGenerator();
-            var zWriteCode = new ShaderGenerator();
-            var stencilCode = new ShaderGenerator();
-            var colorMaskCode = new ShaderGenerator();
+            var blendCode = new ShaderStringBuilder();
+            var cullCode = new ShaderStringBuilder();
+            var zTestCode = new ShaderStringBuilder();
+            var zWriteCode = new ShaderStringBuilder();
+            var stencilCode = new ShaderStringBuilder();
+            var colorMaskCode = new ShaderStringBuilder();
             HDSubShaderUtilities.BuildRenderStatesFromPassAndMaterialOptions(pass, materialOptions, blendCode, cullCode, zTestCode, zWriteCode, stencilCode, colorMaskCode);
 
             if (masterNode.twoSided.isOn)
@@ -336,7 +335,8 @@ namespace UnityEditor.ShaderGraph
                 graph.Deindent();
             graph.AddShaderChunk("// Graph Outputs");
                 graph.Indent();
-                graph.AddGenerator(graphOutputs);
+                graph.AddShaderChunk(graphOutputs.ToString());
+                //graph.AddGenerator(graphOutputs);
                 graph.Deindent();
             graph.AddShaderChunk("// Graph Properties (uniform inputs)");
                 graph.AddShaderChunk(graphProperties.GetPropertiesDeclaration(1));
@@ -344,7 +344,8 @@ namespace UnityEditor.ShaderGraph
                 graph.AddShaderChunk(graphNodeFunctions.ToString());
             graph.AddShaderChunk("// Graph Evaluation");
                 graph.Indent();
-                graph.AddGenerator(graphEvalFunction);
+                graph.AddShaderChunk(graphEvalFunction.ToString());
+                //graph.AddGenerator(graphEvalFunction);
                 graph.Deindent();
 
             // build the hash table of all named fragments		TODO: could make this Dictionary<string, ShaderGenerator / string>  ?
@@ -355,12 +356,12 @@ namespace UnityEditor.ShaderGraph
             namedFragments.Add("${PassName}",               pass.Name);
             namedFragments.Add("${Includes}",               shaderPassIncludes.GetShaderString(2, false));
             namedFragments.Add("${InterpolatorPacking}",    packedInterpolatorCode.GetShaderString(2, false));
-            namedFragments.Add("${Blending}",               blendCode.GetShaderString(2, false));
-            namedFragments.Add("${Culling}",                cullCode.GetShaderString(2, false));
-            namedFragments.Add("${ZTest}",                  zTestCode.GetShaderString(2, false));
-            namedFragments.Add("${ZWrite}",                 zWriteCode.GetShaderString(2, false));
-            namedFragments.Add("${Stencil}",                stencilCode.GetShaderString(2, false));
-            namedFragments.Add("${ColorMask}",              colorMaskCode.GetShaderString(2, false));
+            namedFragments.Add("${Blending}",               blendCode.ToString());
+            namedFragments.Add("${Culling}",                cullCode.ToString());
+            namedFragments.Add("${ZTest}",                  zTestCode.ToString());
+            namedFragments.Add("${ZWrite}",                 zWriteCode.ToString());
+            namedFragments.Add("${Stencil}",                stencilCode.ToString());
+            namedFragments.Add("${ColorMask}",              colorMaskCode.ToString());
             namedFragments.Add("${LOD}",                    materialOptions.lod.ToString());
             namedFragments.Add("${VariantDefines}",         GetVariantDefines(masterNode));
 
@@ -390,9 +391,9 @@ namespace UnityEditor.ShaderGraph
 
                 // Add tags at the SubShader level
                 {
-                    var tagsVisitor = new ShaderGenerator();
+                    var tagsVisitor = new ShaderStringBuilder();
                     materialOptions.GetTags(tagsVisitor);
-                    subShader.AddShaderChunk(tagsVisitor.GetShaderString(0), false);
+                    subShader.AddShaderChunk(tagsVisitor.ToString(), false);
                 }
 
                 // generate the necessary shader passes
