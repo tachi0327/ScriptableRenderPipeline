@@ -288,6 +288,20 @@ namespace UnityEditor.ShaderGraph
                 }
             }
 
+            if (pass.PixelShaderSlots != null)
+            {
+                foreach (var slotId in pass.PixelShaderSlots)
+                {
+                    var slot = masterNode.FindSlot<MaterialSlot>(slotId);
+                    if(slot != null)
+                    {
+                        var rawSlotName = slot.RawDisplayName().ToString();
+                        var descriptionVar = string.Format("{0}.{1}", graphOutputStructName, rawSlotName);
+                        activeFields.Add(descriptionVar);
+                    }
+                }
+            }
+
             var packedInterpolatorCode = new ShaderGenerator();
             var graphInputs = new ShaderGenerator();
             HDRPShaderStructs.Generate(
