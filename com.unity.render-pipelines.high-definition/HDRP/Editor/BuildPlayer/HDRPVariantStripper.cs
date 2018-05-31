@@ -110,9 +110,10 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                 }
             }
 
-            // TODO: Expose development build flag.
-            //if (developmentBuild && inputData.shaderKeywordSet.IsEnabled(m_DebugDisplay))
-            //    return true;
+            // If we are in a release build, don't compile debug display variant
+            // Also don't compile it if not requested by the render pipeline settings
+            if ((!Debug.isDebugBuild || !m_CurrentHDRPAsset.renderPipelineSettings.supportDebugDisplay) && inputData.shaderKeywordSet.IsEnabled(m_DebugDisplay))
+                return true;
 
             // TODO: Tests for later
             // We need to find a way to strip useless shader features for passes/shader stages that don't need them (example, vertex shaders won't ever need SSS Feature flag)
