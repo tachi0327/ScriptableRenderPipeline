@@ -4,6 +4,7 @@
 ## [2018.3]
 
 ### Improvements
+- Add Coupling of (HD)Camera and HDAdditionalCameraData for reset and remove in inspector contextual menu of Camera
 
 ### Changed, Removals and deprecations
 
