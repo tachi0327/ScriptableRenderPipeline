@@ -207,6 +207,13 @@ namespace UnityEngine.Experimental.Rendering.LightweightPipeline
 
             bool anyShadowsEnabled = pipelineAsset.supportsDirectionalShadows || pipelineAsset.supportsLocalShadows;
             cameraData.maxShadowDistance = (anyShadowsEnabled) ? pipelineAsset.shadowDistance : 0.0f;
+
+            if (camera != Camera.main && !cameraData.isSceneViewCamera)
+            {
+                cameraData.requiresDepthTexture = false;
+                cameraData.requiresOpaqueTexture = false;
+                cameraData.maxShadowDistance = 0.0f; 
+            }
         }
 
         void InitializeRenderingData(ref CameraData cameraData, List<VisibleLight> visibleLights, int maxSupportedLocalLightsPerPass, int maxSupportedVertexLights, out RenderingData renderingData)
