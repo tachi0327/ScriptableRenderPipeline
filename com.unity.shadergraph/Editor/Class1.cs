@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Text;
 using UnityEditor.Importers;
 using UnityEngine;
 using Utf8Json;
@@ -66,6 +67,7 @@ namespace UnityEditor
         {
             Person1 p0 = new Person1 { age = 99, fullName = "foobar" };
             byte[] json0 = JsonSerializer.Serialize(p0, new UpgradeResolver(CompositeResolver.Create(UnityResolver.Instance, StandardResolver.Default)));
+            Debug.Log(Encoding.UTF8.GetString(json0));
             Debug.Log(JsonSerializer.PrettyPrint(json0));
             Person p = JsonSerializer.Deserialize<Person>(json0, new UpgradeResolver(CompositeResolver.Create(UnityResolver.Instance, StandardResolver.Default)));
             Debug.Log(p);

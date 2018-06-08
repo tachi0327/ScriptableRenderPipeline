@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using UnityEditor.ShaderGraph;
 using UnityEngine;
 using UnityEngine.AI;
@@ -26,8 +27,6 @@ namespace UnityEditor.Importers
 
         public UpgradeFormatter()
         {
-            var versionFieldName = "version";
-
             m_KeyMapping = new AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("version"), 0 },
@@ -42,15 +41,6 @@ namespace UnityEditor.Importers
 //            {
 //                var attributes = typeof(T).GetCustomAttributes(typeof(FormerNameAttribute), false);
 //            }
-//            var properties = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
-//            foreach (var property in properties)
-//            {
-//
-//            }
-            m_KeyMapping = new AutomataDictionary
-            {
-                { JsonWriter.GetEncodedPropertyNameWithoutQuotation(versionFieldName), 0 }
-            };
 
             m_Versions = new List<VersionInfo>();
 
@@ -162,6 +152,7 @@ namespace UnityEditor.Importers
                     //    here to make sure we can read weirdly ordered JSON.
                     if (versionFound)
                         break;
+
                     dataOffset = reader.GetCurrentOffsetUnsafe();
                     reader.ReadNextBlock();
                 }
@@ -169,7 +160,6 @@ namespace UnityEditor.Importers
                 {
                     reader.ReadNextBlock();
                 }
-
             }
 
             // If case B occured, we know that we have read the entire object, and so we record the offset immediately
@@ -185,73 +175,72 @@ namespace UnityEditor.Importers
 
             // At this point the reader is guaranteed to be right before the "data" contents.
 
-            // If the serialized version is the latest version, just use the formatter for that one.
-            // Avoid slow reflection as we know the type statically and this is the fast path.
-            if (version == m_Versions.Count)
+            var exceptionThrown = false;
+            try
             {
-                var currentFormatter = upgradeResolver.GetCurrentFormatter<T>();
-                var inst = currentFormatter.Deserialize(ref reader, formatterResolver);
-                Debug.Log(inst.ToString());
+                // If the serialized version is the latest version, just use the formatter for that one.
+                // Avoid slow reflection as we know the type statically and this is the fast path.
+                if (version == m_Versions.Count)
+                {
+                    var currentFormatter = upgradeResolver.GetCurrentFormatter<T>();
+                    var inst = currentFormatter.Deserialize(ref reader, formatterResolver);
 
-                // Since we're done reading JSON now, we'd like to move the reader to the end of the object.
-                if (dataOffset == -1)
-                {
-                    // Case A (aka fast path) we just read the rest of the object. There should be any more keys.
-                    if (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
-                        throw new InvalidOperationException("Expected object to end.");
-                }
-                else
-                {
-                    // Case B (aka slow path) we already know where the end is, so we advance the reader to that point.
-                    reader.AdvanceOffset(endOffset - reader.GetCurrentOffsetUnsafe());
+                    return inst;
                 }
 
-                return inst;
+                // Can't deserialize newer versions than the current one.
+                if (version > m_Versions.Count)
+                    throw new InvalidOperationException("The value was serialized using a newer version than the current one.");
+
+                // Negative versions make no sense, silly.
+                if (version < 0)
+                    throw new InvalidOperationException("Invalid version.");
+
+                // Deserialize the version of the type we're reading.
+                var initialVersionInfo = m_Versions[version];
+                var formatter = upgradeResolver.GetCurrentFormatterDynamic(initialVersionInfo.type);
+                var deserializeParameters = new object[] { reader, upgradeResolver };
+                var deserializeMethod = formatter.GetType().GetInterfaces().First(t => t == typeof(IJsonFormatter<>).MakeGenericType(initialVersionInfo.type)).GetMethod("Deserialize");
+                var instance = deserializeMethod.Invoke(formatter, deserializeParameters);
+
+                // When passing a ref parameter via reflection, the value in the parameter array is updated after the call.
+                // Thus we need to set reader to that value to mimic passing `ref reader`.
+                reader = (JsonReader)deserializeParameters[0];
+
+                // Upgrade to the latest version one version at a time.
+                for (var i = version; i < m_Versions.Count; i++)
+                {
+                    var versionInfo = m_Versions[i];
+                    instance = versionInfo.upgradeMethod.Invoke(instance, new object[] { });
+                }
+
+                return (T)instance;
             }
-
-            // Can't deserialize newer versions than the current one.
-            if (version > m_Versions.Count)
-                throw new InvalidOperationException("The value was serialized using a newer version than the current one.");
-
-            // Negative versions make no sense, silly.
-            if (version < 0)
-                throw new InvalidOperationException("Invalid version.");
-
-            // Deserialize the version of the type we're reading.
-            var initialVersionInfo = m_Versions[version];
-            var formatter = upgradeResolver.GetCurrentFormatterDynamic(initialVersionInfo.type);
-            var deserializeParameters = new object[] { reader, upgradeResolver };
-            var deserializeMethod = formatter.GetType().GetInterfaces().First(t => t == typeof(IJsonFormatter<>).MakeGenericType(initialVersionInfo.type)).GetMethod("Deserialize");
-            var instance = deserializeMethod.Invoke(formatter, deserializeParameters);
-
-
-            // When passing a ref parameter via reflection, the value in the parameter array is updated after the call.
-            // Thus we need to set reader to that value to mimic passing `ref reader`.
-            reader = (JsonReader)deserializeParameters[0];
-
-            // Since we're done reading JSON now, we'd like to move the reader to the end of the object.
-            if (dataOffset == -1)
+            catch (Exception)
             {
-                // Case A (aka fast path) we just read the rest of the object. There should be any more keys.
-                if (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
-                    throw new InvalidOperationException("Expected object to end.");
+                exceptionThrown = true;
+                throw;
             }
-            else
+            finally
             {
-                // Case B (aka slow path) we already know where the end is, so we advance the reader to that point.
-                reader.AdvanceOffset(endOffset - reader.GetCurrentOffsetUnsafe());
+                // We don't bother resetting the state if an exception was thrown, as we're likely to just cause another
+                // exception and thus obscure the actual exception.
+                if (!exceptionThrown)
+                {
+                    // Since we're done reading JSON now, we'd like to move the reader to the end of the object.
+                    if (dataOffset == -1)
+                    {
+                        // Case A (aka fast path) we just read the rest of the object. There should be any more keys.
+                        if (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
+                            throw new InvalidOperationException("Expected object to end.");
+                    }
+                    else
+                    {
+                        // Case B (aka slow path) we already know where the end is, so we advance the reader to that point.
+                        reader.AdvanceOffset(endOffset - reader.GetCurrentOffsetUnsafe());
+                    }
+                }
             }
-
-            // Upgrade to the latest version one version at a time.
-            for (var i = version; i < m_Versions.Count; i++)
-            {
-                var versionInfo = m_Versions[i];
-                instance = versionInfo.upgradeMethod.Invoke(instance, new object[] { });
-            }
-
-            Debug.Log(instance.ToString());
-
-            return (T)instance;
         }
     }
 }
