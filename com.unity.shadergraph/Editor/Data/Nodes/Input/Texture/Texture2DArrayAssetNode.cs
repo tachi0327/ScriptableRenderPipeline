@@ -73,6 +73,6 @@ namespace UnityEditor.ShaderGraph
             return prop;
         }
 
-        public int outputSlotId { get { return OutputSlotId; } }
+        public int[] outputSlotIds { get { return new int[]{OutputSlotId}; } }
     }
 }

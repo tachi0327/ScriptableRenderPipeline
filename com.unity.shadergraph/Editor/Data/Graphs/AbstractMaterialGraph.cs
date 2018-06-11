@@ -485,19 +485,28 @@ namespace UnityEditor.ShaderGraph
                 return;
 
             var node = property.ToConcreteNode();
-            if (!(node is AbstractMaterialNode))
+            if (!(node is IPropertyFromNode))
                 return;
 
-            var slot = propertyNode.FindOutputSlot<MaterialSlot>(PropertyNode.OutputSlotId);
-            var newSlot = node.GetOutputSlots<MaterialSlot>().FirstOrDefault(s => s.valueType == slot.valueType);
-            if (newSlot == null)
+            var converter = node as IPropertyFromNode;
+
+            if (converter.outputSlotIds.Length != PropertyNode.OutputSlotIds.Length)
+            {
+                Debug.LogError("Slot array mismatch when converting to property.");
                 return;
+            }
 
             node.drawState = propertyNode.drawState;
             AddNodeNoValidate(node);
 
-            foreach (var edge in this.GetEdges(slot.slotReference))
-                ConnectNoValidate(newSlot.slotReference, edge.inputSlot);
+            for (int i = 0; i < converter.outputSlotIds.Length; i++)
+            {
+                var oldSlot = propertyNode.FindOutputSlot<MaterialSlot>(PropertyNode.OutputSlotIds[i]);
+                var newSlot = node.FindOutputSlot<MaterialSlot>(PropertyNode.OutputSlotIds[i]);
+
+                foreach (var edge in this.GetEdges(oldSlot.slotReference))
+                    ConnectNoValidate(newSlot.slotReference, edge.inputSlot);
+            }
 
             RemoveNodeNoValidate(propertyNode);
         }

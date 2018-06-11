@@ -51,7 +51,7 @@ namespace UnityEditor.ShaderGraph
             var inputYValue = GetSlotValue(InputSlotYId, generationMode);
             var inputZValue = GetSlotValue(InputSlotZId, generationMode);
             var inputWValue = GetSlotValue(InputSlotWId, generationMode);
-            var outputName = GetVariableNameForSlot(outputSlotId);
+            var outputName = GetVariableNameForSlot(outputSlotIds[0]);
 
             var s = string.Format("{0}4 {1} = {0}4({2},{3},{4},{5});",
                     precision,
@@ -72,6 +72,6 @@ namespace UnityEditor.ShaderGraph
             return new Vector4ShaderProperty { value = new Vector4(slotX.value, slotY.value, slotZ.value, slotW.value) };
         }
 
-        public int outputSlotId { get { return OutputSlotId; } }
+        public int[] outputSlotIds { get { return new int[]{OutputSlotId}; } }
     }
 }

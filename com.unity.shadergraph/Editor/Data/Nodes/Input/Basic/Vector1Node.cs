@@ -48,6 +48,6 @@ namespace UnityEditor.ShaderGraph
             return new Vector1ShaderProperty { value = slot.value };
         }
 
-        int IPropertyFromNode.outputSlotId { get { return OutputSlotId; } }
+        public int[] outputSlotIds { get { return new int[]{OutputSlotId}; } }
     }
 }

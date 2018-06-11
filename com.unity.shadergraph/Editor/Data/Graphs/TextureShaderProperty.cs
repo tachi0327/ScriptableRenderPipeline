@@ -40,8 +40,6 @@ namespace UnityEditor.ShaderGraph
             {
                 result.Append("[NonModifiableTextureData] ");
             }
-            result.Append("[NoScaleOffset] ");
-
             result.Append(referenceName);
             result.Append("(\"");
             result.Append(displayName);
@@ -51,7 +49,7 @@ namespace UnityEditor.ShaderGraph
 
         public override string GetPropertyDeclarationString(string delimiter = ";")
         {
-            return string.Format("TEXTURE2D({0}){1} SAMPLER(sampler{0}){1}", referenceName, delimiter);
+            return string.Format("TEXTURE2D({0}){1} SAMPLER(sampler{0}); float4 {0}_TexelSize; float4 {0}_ST{1}", referenceName, delimiter);
         }
 
         public override string GetPropertyAsArgumentString()

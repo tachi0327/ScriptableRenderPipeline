@@ -87,6 +87,6 @@ namespace UnityEditor.ShaderGraph
             return new Vector1ShaderProperty { value = value, floatType = FloatType.Integer };
         }
 
-        public int outputSlotId { get { return OutputSlotId; } }
+        public int[] outputSlotIds { get { return new int[]{OutputSlotId}; } }
     }
 }

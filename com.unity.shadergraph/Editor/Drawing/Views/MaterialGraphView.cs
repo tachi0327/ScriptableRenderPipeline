@@ -170,12 +170,21 @@ namespace UnityEditor.ShaderGraph.Drawing
                 graph.AddNode(propNode);
                 propNode.propertyGuid = prop.guid;
 
-                var oldSlot = node.FindSlot<MaterialSlot>(converter.outputSlotId);
-                var newSlot = propNode.FindSlot<MaterialSlot>(PropertyNode.OutputSlotId);
+                if (converter.outputSlotIds.Length != PropertyNode.OutputSlotIds.Length)
+                {
+                    Debug.LogError("Slot array mismatch when converting to property.");
+                    return;
+                }
 
-                foreach (var edge in graph.GetEdges(oldSlot.slotReference))
-                    graph.Connect(newSlot.slotReference, edge.inputSlot);
+                for (int i = 0; i < converter.outputSlotIds.Length; i++)
+                {
+                    var oldSlot = node.FindSlot<MaterialSlot>(converter.outputSlotIds[i]);
+                    var newSlot = propNode.FindSlot<MaterialSlot>(PropertyNode.OutputSlotIds[i]);
 
+                    foreach (var edge in graph.GetEdges(oldSlot.slotReference))
+                        graph.Connect(newSlot.slotReference, edge.inputSlot);
+                }
+                
                 graph.RemoveNode(node);
             }
         }

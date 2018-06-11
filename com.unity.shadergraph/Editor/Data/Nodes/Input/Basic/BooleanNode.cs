@@ -84,6 +84,6 @@ namespace UnityEditor.ShaderGraph
             return new BooleanShaderProperty { value = m_Value };
         }
 
-        public int outputSlotId { get { return OutputSlotId; } }
+        public int[] outputSlotIds { get { return new int[]{OutputSlotId}; } }
     }
 }

@@ -338,7 +338,7 @@ namespace UnityEditor.ShaderGraph.Drawing
                     foreach (var edge in group.edges)
                     {
                         subGraph.Connect(
-                            new SlotReference(propNode.guid, PropertyNode.OutputSlotId),
+                            new SlotReference(propNode.guid, PropertyNode.OutputSlotIds[0]),
                             new SlotReference(nodeGuidMap[edge.inputSlot.nodeGuid], edge.inputSlot.slotId));
                         externalInputNeedingConnection.Add(new KeyValuePair<IEdge, IShaderProperty>(edge, prop));
                     }
