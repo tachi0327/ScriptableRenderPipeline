@@ -6,10 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Improvements
+- Increased debug color picker limit up to 260k lux
+
 ## [2.0.3-preview]
 
 ### Improvements
-- Increased debug color picker limit up to 260k lux
 
 ## [2.0.2-preview]
 - Add Light -> Planar Reflection Probe command
