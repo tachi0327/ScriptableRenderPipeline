@@ -84,16 +84,16 @@ ${PixelShader}
 ${PixelShaderSurfaceInputs}
 
         SurfaceDescription surf = PopulateSurfaceData(surfaceInput);
-        float3 Color = float3(0.5, 0.5, 0.5);
-        float Alpha = 1;
-        float AlphaClipThreshold = 0;
+        real3 Color = real3(0.5, 0.5, 0.5);
+        real Alpha = 1;
+        real AlphaClipThreshold = 0;
         // Surface description remap performed by graph
 ${PixelShaderSurfaceRemap}
         
  #if _AlphaClip
         clip(Alpha - AlphaClipThreshold);
 #endif
-        return half4(Color, Alpha);
+        return real4(Color, Alpha);
     }
     ENDHLSL
 }

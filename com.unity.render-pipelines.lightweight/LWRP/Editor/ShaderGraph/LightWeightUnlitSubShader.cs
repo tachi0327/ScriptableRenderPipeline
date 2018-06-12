@@ -200,13 +200,13 @@ namespace UnityEngine.Experimental.Rendering.LightweightPipeline
                 ShaderGenerator.GenerateSpaceTranslationSurfaceInputs(vertexRequirements.requiresPosition, InterpolatorType.Position, vertexDescriptionInputStruct);
 
                 if (vertexRequirements.requiresVertexColor)
-                    vertexDescriptionInputStruct.AppendLine("float4 {0};", ShaderGeneratorNames.VertexColor);
+                    vertexDescriptionInputStruct.AppendLine("real4 {0};", ShaderGeneratorNames.VertexColor);
 
                 if (vertexRequirements.requiresScreenPosition)
                     vertexDescriptionInputStruct.AppendLine("float4 {0};", ShaderGeneratorNames.ScreenPosition);
 
                 foreach (var channel in vertexRequirements.requiresMeshUVs.Distinct())
-                    vertexDescriptionInputStruct.AppendLine("half4 {0};", channel.GetUVName());
+                    vertexDescriptionInputStruct.AppendLine("float4 {0};", channel.GetUVName());
             }
 
             // -------------------------------------
@@ -244,16 +244,16 @@ namespace UnityEngine.Experimental.Rendering.LightweightPipeline
                 ShaderGenerator.GenerateSpaceTranslationSurfaceInputs(surfaceRequirements.requiresPosition, InterpolatorType.Position, surfaceDescriptionInputStruct);
 
                 if (surfaceRequirements.requiresVertexColor)
-                    surfaceDescriptionInputStruct.AppendLine("float4 {0};", ShaderGeneratorNames.VertexColor);
+                    surfaceDescriptionInputStruct.AppendLine("real4 {0};", ShaderGeneratorNames.VertexColor);
 
                 if (surfaceRequirements.requiresScreenPosition)
                     surfaceDescriptionInputStruct.AppendLine("float4 {0};", ShaderGeneratorNames.ScreenPosition);
 
                 if (surfaceRequirements.requiresFaceSign)
-                    surfaceDescriptionInputStruct.AppendLine("float {0};", ShaderGeneratorNames.FaceSign);
+                    surfaceDescriptionInputStruct.AppendLine("real {0};", ShaderGeneratorNames.FaceSign);
 
                 foreach (var channel in surfaceRequirements.requiresMeshUVs.Distinct())
-                    surfaceDescriptionInputStruct.AppendLine("half4 {0};", channel.GetUVName());
+                    surfaceDescriptionInputStruct.AppendLine("float4 {0};", channel.GetUVName());
             }
 
             // -------------------------------------
@@ -320,7 +320,7 @@ namespace UnityEngine.Experimental.Rendering.LightweightPipeline
             var faceSign = new ShaderStringBuilder();
 
             if (pixelRequirements.requiresFaceSign)
-                faceSign.AppendLine(", half FaceSign : VFACE");
+                faceSign.AppendLine(", real FaceSign : VFACE");
 
             // ----------------------------------------------------- //
             //                      FINALIZE                         //
@@ -447,13 +447,13 @@ namespace UnityEngine.Experimental.Rendering.LightweightPipeline
                 ShaderGenerator.GenerateSpaceTranslationSurfaceInputs(vertexRequirements.requiresPosition, InterpolatorType.Position, vertexDescriptionInputStruct);
 
                 if (vertexRequirements.requiresVertexColor)
-                    vertexDescriptionInputStruct.AppendLine("float4 {0};", ShaderGeneratorNames.VertexColor);
+                    vertexDescriptionInputStruct.AppendLine("real4 {0};", ShaderGeneratorNames.VertexColor);
 
                 if (vertexRequirements.requiresScreenPosition)
                     vertexDescriptionInputStruct.AppendLine("float4 {0};", ShaderGeneratorNames.ScreenPosition);
 
                 foreach (var channel in vertexRequirements.requiresMeshUVs.Distinct())
-                    vertexDescriptionInputStruct.AppendLine("half4 {0};", channel.GetUVName());
+                    vertexDescriptionInputStruct.AppendLine("float4 {0};", channel.GetUVName());
             }
 
             // -------------------------------------

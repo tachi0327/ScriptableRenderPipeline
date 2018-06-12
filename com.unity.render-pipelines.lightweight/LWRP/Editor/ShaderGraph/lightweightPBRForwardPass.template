@@ -77,7 +77,7 @@ ${VertexShaderDescriptionInputs}
 
 		// Vertex shader outputs defined by graph
 ${VertexShaderOutputs}
-		float3 lwWNormal = TransformObjectToWorldNormal(v.normal);
+		real3 lwWNormal = TransformObjectToWorldNormal(v.normal);
 		float3 lwWorldPos = TransformObjectToWorld(v.vertex.xyz);
 		float4 clipPos = TransformWorldToHClip(lwWorldPos);
 
@@ -88,8 +88,8 @@ ${VertexShaderOutputs}
 	    OUTPUT_LIGHTMAP_UV(v.texcoord1, unity_LightmapST, o.lightmapUV);
 	    OUTPUT_SH(lwWNormal, o.vertexSH);
 
-	    half3 vertexLight = VertexLighting(lwWorldPos, lwWNormal);
-	    half fogFactor = ComputeFogFactor(clipPos.z);
+	    real3 vertexLight = VertexLighting(lwWorldPos, lwWNormal);
+	    real fogFactor = ComputeFogFactor(clipPos.z);
 	    o.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
 	    o.clipPos = clipPos;
 
@@ -115,15 +115,15 @@ ${PixelShader}
 ${PixelShaderSurfaceInputs}
         SurfaceDescription surf = PopulateSurfaceData(surfaceInput);
 
-		float3 Albedo = float3(0.5, 0.5, 0.5);
-		float3 Specular = float3(0, 0, 0);
-		float Metallic = 1;
-		float3 Normal = float3(0, 0, 1);
-		float3 Emission = 0;
-		float Smoothness = 0.5;
-		float Occlusion = 1;
-		float Alpha = 1;
-		float AlphaClipThreshold = 0;
+		real3 Albedo = real3(0.5, 0.5, 0.5);
+		real3 Specular = real3(0, 0, 0);
+		real Metallic = 1;
+		real3 Normal = real3(0, 0, 1);
+		real3 Emission = 0;
+		real Smoothness = 0.5;
+		real Occlusion = 1;
+		real Alpha = 1;
+		real AlphaClipThreshold = 0;
 
 		// Surface description remap performed by graph
 ${PixelShaderSurfaceRemap}
@@ -153,7 +153,7 @@ ${PixelShaderSurfaceRemap}
 	    inputData.vertexLighting = IN.fogFactorAndVertexLight.yzw;
 	    inputData.bakedGI = SAMPLE_GI(IN.lightmapUV, IN.vertexSH, inputData.normalWS);
 
-		half4 color = LightweightFragmentPBR(
+		real4 color = LightweightFragmentPBR(
 			inputData, 
 			Albedo, 
 			Metallic, 
