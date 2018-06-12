@@ -208,7 +208,7 @@ namespace UnityEngine.Experimental.Rendering.LightweightPipeline
             bool anyShadowsEnabled = pipelineAsset.supportsDirectionalShadows || pipelineAsset.supportsLocalShadows;
             cameraData.maxShadowDistance = (anyShadowsEnabled) ? pipelineAsset.shadowDistance : 0.0f;
 
-            if (camera != Camera.main && !cameraData.isSceneViewCamera)
+            if (camera != Camera.main && !cameraData.isSceneViewCamera && camera.cameraType != CameraType.Reflection && camera.cameraType != CameraType.Preview)
             {
                 cameraData.requiresDepthTexture = false;
                 cameraData.requiresOpaqueTexture = false;
